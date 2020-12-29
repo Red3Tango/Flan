@@ -37,6 +37,7 @@ public class Config {
 
     public Item claimingItem = Items.GOLDEN_HOE;
     public Item inspectionItem = Items.STICK;
+    public boolean forceBlockInteraction;
 
     public int claimDisplayTime = 1000;
     public int permissionLevel = 2;
@@ -82,6 +83,7 @@ public class Config {
                 this.claimingItem = Registry.ITEM.get(new Identifier((obj.get("claimingItem").getAsString())));
             if (obj.has("inspectionItem"))
                 this.inspectionItem = Registry.ITEM.get(new Identifier((obj.get("inspectionItem").getAsString())));
+            this.forceBlockInteraction = ConfigHandler.fromJson(obj, "forceBlockInteraction", false);
             this.claimDisplayTime = ConfigHandler.fromJson(obj, "claimDisplayTime", this.claimDisplayTime);
             this.globalDefaultPerms.clear();
             JsonObject glob = ConfigHandler.fromJson(obj, "globalDefaultPerms");
@@ -123,6 +125,7 @@ public class Config {
         obj.addProperty("allowMobSpawnToggle", this.allowMobSpawnToggle);
         obj.addProperty("claimingItem", Registry.ITEM.getId(this.claimingItem).toString());
         obj.addProperty("inspectionItem", Registry.ITEM.getId(this.inspectionItem).toString());
+        obj.addProperty("forceBlockInteraction", this.forceBlockInteraction);
         obj.addProperty("claimDisplayTime", this.claimDisplayTime);
         obj.addProperty("permissionLevel", this.permissionLevel);
         JsonObject global = new JsonObject();
