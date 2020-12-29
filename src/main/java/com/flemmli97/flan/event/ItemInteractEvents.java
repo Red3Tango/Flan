@@ -42,7 +42,7 @@ public class ItemInteractEvents {
             return TypedActionResult.pass(p.getStackInHand(hand));
         ServerPlayerEntity player = (ServerPlayerEntity) p;
         ItemStack stack = player.getStackInHand(hand);
-        if (stack.getItem() == ConfigHandler.config.claimingItem) {
+        if (stack.getItem() == ConfigHandler.config.claimingItem && !ConfigHandler.config.forceBlockInteraction) {
             HitResult ray = player.rayTrace(64, 0, false);
             if (ray != null && ray.getType() == HitResult.Type.BLOCK) {
                 claimLandHandling(player, ((BlockHitResult) ray).getBlockPos());
@@ -50,7 +50,7 @@ public class ItemInteractEvents {
             }
             return TypedActionResult.pass(stack);
         }
-        if (stack.getItem() == ConfigHandler.config.inspectionItem) {
+        if (stack.getItem() == ConfigHandler.config.inspectionItem && !ConfigHandler.config.forceBlockInteraction) {
             HitResult ray = player.rayTrace(32, 0, false);
             if (ray != null && ray.getType() == HitResult.Type.BLOCK) {
                 inspect(player, ((BlockHitResult) ray).getBlockPos());
