@@ -58,8 +58,12 @@ public class CommandClaim {
                 .then(CommandManager.literal("deleteAllSubClaims").executes(CommandClaim::deleteAllSubClaim))
                 .then(CommandManager.literal("list").executes(CommandClaim::listClaims).then(CommandManager.argument("player", GameProfileArgumentType.gameProfile()).requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel))
                         .executes(cmd -> listClaims(cmd, GameProfileArgumentType.getProfileArgument(cmd, "player")))))
-                .then(CommandManager.literal("switchMode").executes(CommandClaim::switchClaimMode))
-                .then(CommandManager.literal("adminMode").requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel)).executes(CommandClaim::switchAdminMode))
+                .then(CommandManager.literal("switchMode").executes(cmd -> switchClaimMode(cmd, -1))
+                        .then(CommandManager.literal("default").executes(cmd -> switchClaimMode(cmd, 0)))
+                        .then(CommandManager.literal("subclaim").executes(cmd -> switchClaimMode(cmd, 1))))
+                .then(CommandManager.literal("adminMode").requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel)).executes(cmd -> switchAdminMode(cmd, -1))
+                        .then(CommandManager.literal("on").executes(cmd -> switchAdminMode(cmd, 1)))
+                        .then(CommandManager.literal("off").executes(cmd -> switchAdminMode(cmd, 0))))
                 .then(CommandManager.literal("readGriefPrevention").requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel)).executes(CommandClaim::readGriefPreventionData))
                 .then(CommandManager.literal("setAdminClaim").requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel)).then(CommandManager.argument("toggle", BoolArgumentType.bool()).executes(CommandClaim::toggleAdminClaim)))
                 .then(CommandManager.literal("listAdminClaims").requires(src -> src.hasPermissionLevel(ConfigHandler.config.permissionLevel)).executes(CommandClaim::listAdminClaims))
@@ -296,18 +300,19 @@ public class CommandClaim {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int switchClaimMode(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int switchClaimMode(CommandContext<ServerCommandSource> context, int mode) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         PlayerClaimData data = PlayerClaimData.get(player);
-        data.setEditMode(data.getEditMode() == EnumEditMode.DEFAULT ? EnumEditMode.SUBCLAIM : EnumEditMode.DEFAULT);
+        data.setEditMode(mode == 0 ? EnumEditMode.DEFAULT : mode == 1 ? EnumEditMode.SUBCLAIM :
+            (data.getEditMode() == EnumEditMode.DEFAULT ? EnumEditMode.SUBCLAIM : EnumEditMode.DEFAULT));
         player.sendMessage(PermHelper.simpleColoredText(String.format(ConfigHandler.lang.editMode, data.getEditMode()), Formatting.GOLD), false);
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int switchAdminMode(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int switchAdminMode(CommandContext<ServerCommandSource> context, int mode ) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         PlayerClaimData data = PlayerClaimData.get(player);
-        data.setAdminIgnoreClaim(!data.isAdminIgnoreClaim());
+        data.setAdminIgnoreClaim(mode == 1 ? true : mode == 0 ? false : !data.isAdminIgnoreClaim());
         player.sendMessage(PermHelper.simpleColoredText(String.format(ConfigHandler.lang.adminMode, data.isAdminIgnoreClaim()), Formatting.GOLD), false);
         return Command.SINGLE_SUCCESS;
     }
